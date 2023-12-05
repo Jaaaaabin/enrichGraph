@@ -5,6 +5,7 @@ __pycache__/
 
 # rvt models
 *.rvt
+*.dyn
 
 # C extensions
 *.so
