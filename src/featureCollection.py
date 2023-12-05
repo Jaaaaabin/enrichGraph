@@ -39,4 +39,5 @@ def featureCollect():
         df_instance.to_csv(
             DIRS_DATA_RES+'\df_feature_'+ feature_inst +'.csv',
             index=False,
-            encoding = 'utf-8-sig') # encoding = 'utf-8-sig' for special characters.
+            encoding = 'utf-8-sig')# encoding = 'utf-8-sig' for special characters.
+
