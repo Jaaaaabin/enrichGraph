@@ -111,7 +111,7 @@ def flatten(list):
     return [item for sublist in list for item in sublist]
 
 
-def split_guids(guids, separator=',', remove_repeat=False):
+def split_ids(guids, separator=',', remove_repeat=False):
 
     guid_multilist = copy.deepcopy(guids)
     for ii in range(len(guid_multilist)):
@@ -128,7 +128,7 @@ def split_guids(guids, separator=',', remove_repeat=False):
     return guid_multilist
 
 
-def build_guid_edges(
+def build_id_edges(
         lst_host, lst_targets, set_sort=True):
     
     all_edges = []
@@ -165,76 +165,3 @@ def build_networkx_graph(
 
     return G_all
 
-
-def get_tempo_data(
-        lst, k_track, k):
-    """
-    get the temporary data at k_track
-    """
-
-    k_lst = []
-    if isinstance(lst, list):
-        if len(lst) == k:
-            if len(lst) > 1:
-                k_lst = lst[k_track]
-            elif len(lst) == 1:
-                k_lst = lst[0]
-        else:
-            print('the input data doest fit the assigned link level.')
-    else:
-        k_lst = lst
-    return k_lst
-
-
-def plot_networkx_per_rule(
-        path,
-        G,
-        nodesize_map,
-        nodecolor_map,
-        rule='',
-        pos_layout_scale= 0.75):
-    """
-    plot the networkx graph with specified maps for node size and node color.
-    """
-
-    fig = plt.figure(figsize=(30, 18))
-    ax = plt.axes((0.05, 0.05, 0.90, 0.90))
-    G_nodes = G.nodes()
-    G_nodes_sizes = [nodesize_map[G.nodes[n]['classification']]
-                     for n in G_nodes]
-    G_nodes_colors = [nodecolor_map[G.nodes[n]['classification']]
-                      for n in G_nodes]
-
-    nx.draw_networkx(
-        G,
-        pos=nx.kamada_kawai_layout(G, scale=pos_layout_scale),
-        # pos = nx.spiral_layout(G, scale=pos_layout_scale),
-        arrows=True,
-        with_labels=False,
-        node_size=G_nodes_sizes,
-        node_shape="o",
-        node_color=G_nodes_colors,
-        linewidths=0.1,
-        width=2,
-        alpha=0.80,
-        edge_color='black')
-    ax.title.set_position([.5, 0.975])
-
-    for kk in list(nodecolor_map.keys()):
-        plt.scatter([], [], c=nodecolor_map[kk], label=kk)
-
-    plt.legend(fontsize="xx-large", ncol=4, loc=(0.35,0.05))
-    plt.savefig(path + '\\res_G_' + str(rule) + '.png', dpi=200)
-
-
-def createDictGlobalParametersPerRule(rules, df_gps):
-    """
-    """
-
-    dictGPperRule = dict()
-    for rule in rules:
-        lst_gps_per_rule = [
-            gp for gp in df_gps[rule].tolist() if str(gp) != 'nan']
-        dictGPperRule[rule] = lst_gps_per_rule
-
-    return dictGPperRule

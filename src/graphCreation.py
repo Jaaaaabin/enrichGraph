@@ -3,7 +3,7 @@
 #
 
 # import modules
-from const_project import DIRS_DATA_TOPO
+from const_project import DIRS_DATA_TOPO, DIRS_DATA_RES
 from const_project import NAME_TOPO_OBJECT, NAME_TOPO_SPACE, FILE_INI_GRAPH
 
 from funct_topo import *
@@ -16,20 +16,19 @@ def graphCreate():
     FILE_OBJECT_SLABS = DIRS_DATA_TOPO + NAME_TOPO_OBJECT + 'slabs.txt'
     FILE_OBJECT_INSERTS = DIRS_DATA_TOPO + NAME_TOPO_OBJECT + 'inserts.txt'
 
-    guid_wall_host, guid_wall_inserts, guid_wall_walls, guid_wall_slabs = [],[],[],[]
+    id_wall_host, id_wall_inserts, id_wall_walls, id_wall_slabs = [],[],[],[]
     with open(FILE_OBJECT_HOST) as file:
         for line in file:
-            guid_wall_host.append(line.rstrip())
+            id_wall_host.append(line.rstrip())
     with open(FILE_OBJECT_WALLS) as file:
         for line in file:
-            guid_wall_walls.append(line.rstrip())
+            id_wall_walls.append(line.rstrip())
     with open(FILE_OBJECT_SLABS) as file:
         for line in file:
-            guid_wall_slabs.append(line.rstrip())
+            id_wall_slabs.append(line.rstrip())
     with open(FILE_OBJECT_INSERTS) as file:
         for line in file:
-            guid_wall_inserts.append(line.rstrip())      
-    guid_wall_inserts.append('') # due to the ISSUE:miss the last line for guid_wall_inserts
+            id_wall_inserts.append(line.rstrip())
 
     # space-based
     FILE_SPACE_HOST = DIRS_DATA_TOPO + NAME_TOPO_SPACE + 'host.txt'
@@ -38,50 +37,52 @@ def graphCreate():
     FILE_SPACE_WINDOWS = DIRS_DATA_TOPO + NAME_TOPO_SPACE + 'windows.txt'
     FILE_SPACE_SEPARATIONS = DIRS_DATA_TOPO + NAME_TOPO_SPACE + 'separationlines.txt'
 
-    guid_space_host, guid_space_walls, guid_space_doors, guid_space_windows, guid_space_separationlines = [],[],[],[],[]
+    id_space_host, id_space_walls, id_space_doors, id_space_windows, id_space_separationlines = [],[],[],[],[]
     with open(FILE_SPACE_HOST) as file:
         for line in file:
-            guid_space_host.append(line.rstrip())
+            id_space_host.append(line.rstrip()) # ok
     with open(FILE_SPACE_WALLS) as file:
         for line in file:
-            guid_space_walls.append(line.rstrip())
+            id_space_walls.append(line.rstrip()) # ok
     with open(FILE_SPACE_DOORS) as file:
         for line in file:
-            guid_space_doors.append(line.rstrip())
+            id_space_doors.append(line.rstrip()) # ok
     with open(FILE_SPACE_WINDOWS) as file:
         for line in file:
-            guid_space_windows.append(line.rstrip())
+            id_space_windows.append(line.rstrip())
     with open(FILE_SPACE_SEPARATIONS) as file:
         for line in file:
-            guid_space_separationlines.append(line.rstrip())
-    guid_space_separationlines.append('') # due to the ISSUE:miss the last line for guid_wall_inserts
+            id_space_separationlines.append(line.rstrip())
+    
+    id_space_windows.append('')
+    id_space_separationlines.append('')
 
     # Build networkx edges 
     # wall-based edges.
-    guid_wall_host_indi = split_guids(guid_wall_host)
-    guid_wall_walls_indi = split_guids(guid_wall_walls)
-    guid_wall_inserts_indi = split_guids(guid_wall_inserts)
-    guid_wall_slabs_indi = split_guids(guid_wall_slabs)
+    id_wall_host_indi = split_ids(id_wall_host)
+    id_wall_walls_indi = split_ids(id_wall_walls)
+    id_wall_inserts_indi = split_ids(id_wall_inserts)
+    id_wall_slabs_indi = split_ids(id_wall_slabs)
 
-    edges_wall_h_walls = build_guid_edges(guid_wall_host_indi, guid_wall_walls_indi)
-    edges_wall_h_inserts = build_guid_edges(guid_wall_host_indi, guid_wall_inserts_indi)
-    edges_wall_h_slabs = build_guid_edges(guid_wall_host_indi, guid_wall_slabs_indi)
+    edges_wall_h_walls = build_id_edges(id_wall_host_indi, id_wall_walls_indi)
+    edges_wall_h_inserts = build_id_edges(id_wall_host_indi, id_wall_inserts_indi)
+    edges_wall_h_slabs = build_id_edges(id_wall_host_indi, id_wall_slabs_indi)
 
     df_edges_wall_h_walls = pd.DataFrame.from_records(edges_wall_h_walls, columns = ['host','target'])
     df_edges_wall_h_inserts = pd.DataFrame.from_records(edges_wall_h_inserts, columns = ['host','target'])
     df_edges_wall_h_slabs = pd.DataFrame.from_records(edges_wall_h_slabs, columns = ['host','target'])
 
     # space-based edges.
-    guid_space_host_indi = split_guids(guid_space_host)
-    guid_space_walls_indi = split_guids(guid_space_walls)
-    guid_space_doors_indi = split_guids(guid_space_doors)
-    guid_space_windows_indi = split_guids(guid_space_windows)
-    guid_space_separationlines_indi = split_guids(guid_space_separationlines, remove_repeat=True) 
+    id_space_host_indi = split_ids(id_space_host)
+    id_space_walls_indi = split_ids(id_space_walls)
+    id_space_doors_indi = split_ids(id_space_doors)
+    id_space_windows_indi = split_ids(id_space_windows)
+    id_space_separationlines_indi = split_ids(id_space_separationlines, remove_repeat=True) 
 
-    edges_space_h_walls = build_guid_edges(guid_space_host_indi, guid_space_walls_indi)
-    edges_space_h_doors = build_guid_edges(guid_space_host_indi, guid_space_doors_indi)
-    edges_space_h_windows = build_guid_edges(guid_space_host_indi, guid_space_windows_indi)
-    edges_space_h_separationlines = build_guid_edges(guid_space_host_indi, guid_space_separationlines_indi)
+    edges_space_h_walls = build_id_edges(id_space_host_indi, id_space_walls_indi)
+    edges_space_h_doors = build_id_edges(id_space_host_indi, id_space_doors_indi)
+    edges_space_h_windows = build_id_edges(id_space_host_indi, id_space_windows_indi)
+    edges_space_h_separationlines = build_id_edges(id_space_host_indi, id_space_separationlines_indi)
 
     df_edges_space_h_walls = pd.DataFrame.from_records(edges_space_h_walls, columns = ['host','target'])
     df_edges_space_h_doors = pd.DataFrame.from_records(edges_space_h_doors, columns = ['host','target'])
@@ -116,5 +117,10 @@ def graphCreate():
     all_df_edges = [df_edges_wall_h_walls, df_edges_wall_h_inserts, df_edges_space_h_walls, df_edges_space_h_separationlines]
     all_dict_attrs = [attrs_door, attrs_window, attrs_wall, attrs_space, attrs_separationline]
 
+    # save to a networkx graph.
     G_all = build_networkx_graph(all_df_edges, all_dict_attrs)
     pickle.dump(G_all, open(FILE_INI_GRAPH, 'wb'))
+    # save all the edges to a csv.
+    df_edges_output = pd.concat(all_df_edges)
+    df_edges_output.to_csv(DIRS_DATA_RES +'\df_all_topological_edges.csv', index=False)
+

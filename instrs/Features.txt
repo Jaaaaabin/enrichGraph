@@ -1,1 +1,0 @@
-ID	Xmin	Ymin	Xmax	Ymax	Zmin	Zmax	Area	Length	Height	Width	Space	Wall	Door	Window

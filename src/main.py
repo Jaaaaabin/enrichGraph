@@ -18,8 +18,8 @@ if __name__ == "__main__":
     graphCreate()
     
     # gnn-feature-buildup.
-    featureCollect()
-    securityroomQuery()
+    # featureCollect()
+    # securityroomQuery()
 
     # graphEnrich(plot_graph=True)
     # getRoomPairs()
