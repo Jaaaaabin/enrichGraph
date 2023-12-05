@@ -7,8 +7,9 @@
 # EC3 paper with Tanya.
 DIRS_DATA_TOPO = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_topology'
 DIRS_DATA_GNN = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_gnn'
+DIRS_DATA_RES =  r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res'
 
-FILE_INI_GRAPH = DIRS_DATA_GNN + r'\res_graph.txt'
+FILE_INI_GRAPH = DIRS_DATA_RES + r'\res_graph.txt'
 
 NAME_TOPO_INSTANCES = ['door','window','wall','slab','space','separationline']
 NAME_INSTANCE_COLLECTION = r'\collected_instances_'
@@ -18,7 +19,7 @@ NAME_TOPO_SPACE = r'\collected_topology_space_'
 
 NAME_FEATURE_COLLECTION = r'\feature_'
 
-NAME_FEATURES_INSTANCES = ['space_sr','space_non_sr','wall','door','window']
+NAME_FEATURES_INSTANCES = ['space_sr','space','wall','door','window']
 NAME_FEATURES_INSTANCES_ARE = ['door','window']
 
 NAME_FEATURE_INSTANCES_UNIT_DY= ['xmax','ymax','zmax','xmin','ymin','zmin']

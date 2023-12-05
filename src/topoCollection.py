@@ -26,10 +26,10 @@ def topoCollect():
             # instances: room separation line
             df_instances = build_instance_df(cls_objs_instances, topo_inst, final_index_name='id')
             df_instances.index = df_instances.index.map(str) if df_instances.index.is_integer() else df_instances.index
-            df_instances.to_csv(DIRS_DATA_GNN+'\df_'+ topo_inst +'.csv')
+            df_instances.to_csv(DIRS_DATA_TOPO+'\df_'+ topo_inst +'.csv')
             
         else:
             # instances: non-parameter building elements/spaces.
             # df_instances = build_instance_df(cls_objs_instances, topo_inst, final_index_name='ifcguid')
             df_instances = build_instance_df(cls_objs_instances, topo_inst, final_index_name='id')
-            df_instances.to_csv(DIRS_DATA_GNN+'\df_'+ topo_inst +'.csv', encoding = 'utf-8-sig') # encoding = 'utf-8-sig' for special characters.
+            df_instances.to_csv(DIRS_DATA_TOPO+'\df_'+ topo_inst +'.csv', encoding = 'utf-8-sig') # encoding = 'utf-8-sig' for special characters.

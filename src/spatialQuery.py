@@ -3,25 +3,103 @@
 #
 
 # import modules
-from const_project import DIRS_DATA_TOPO
-from const_project import NAME_TOPO_OBJECT, NAME_TOPO_SPACE, FILE_INI_GRAPH
+from const_project import DIRS_DATA_RES, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
 
 from funct_topo import *
 
-from const_project import DIRS_DATA_GNN, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
+def is_included(box1, box2, tol_inclusion=0.05):
+    
+    # if box1 is IN box2.
+    inclusion_side_min = all(i>=j-tol_inclusion for (i,j) in zip(box1[:3], box2[:3])) # xmin ymin zmin
+    inclusion_side_max = all(i<=j+tol_inclusion for (i,j) in zip(box1[3:], box2[3:])) # xmax ymax zmax
 
-def boundingbox
+    return inclusion_side_min and inclusion_side_max
+
+def is_intersected(box1, box2):
+    
+    # known that box2 is bigger
+
+    # if box1 is  IN box2.
+    if is_included(box1,box2):
+
+        return False
+    
+    # if box1 is not IN box2.
+    elif (box1[3] >=box2[0] and box2[3] >=box1[0]) and \
+        (box1[4] >=box2[1] and box2[4] >=box1[1]) and \
+            (box1[5] >=box2[2] and box2[5] >=box1[2]):
+        
+        return True 
 
 def securityroomQuery():
 
-    sr_feature_inst = 'space_sr'
-    non_sr_feature_inst = 'space_non_sr'
+    sr_feature_inst = NAME_FEATURES_INSTANCES[0]
+    secondary_feature_insts = NAME_FEATURES_INSTANCES[1:]
 
+    # read and extend the SR space.
     df_sr_space =  pd.read_csv(
-        DIRS_DATA_GNN +'\df_feature_'+ sr_feature_inst +'.csv',
+        DIRS_DATA_RES +'\df_feature_'+ sr_feature_inst +'.csv',
         header=0,)
-    df_non_sr_space = pd.read_csv(
-        DIRS_DATA_GNN +'\df_feature_'+ non_sr_feature_inst +'.csv',
-        header=0)
+    df_sr_space['zmin'] = df_sr_space['zmin'].apply(lambda x:x-1000)
+    df_sr_space['zmax'] = df_sr_space['zmax'].apply(lambda x:x+1000)
+    
+    secondary_dfs = {}
 
-    print('ps')
+    for sec_inst in secondary_feature_insts:
+
+        # read all the rest
+        df =  pd.read_csv(
+            DIRS_DATA_RES +'\df_feature_'+ sec_inst +'.csv',
+        header=0,)
+
+        # add class columns
+        for cl in secondary_feature_insts:
+            if cl == sec_inst:
+                df[cl] = 1
+            else:
+                df[cl] = 0
+
+        secondary_dfs.update(
+            {sec_inst: {'feature': df,},}
+                )
+    
+    for sec_inst in secondary_feature_insts:
+
+        # Initialize lists to store the indices of included and intersecting rows
+        included_indices, intersecting_indices  = [], []
+
+        secondary_df = secondary_dfs[sec_inst]['feature']
+        
+        # Check each pair of bounding boxes
+        # .... vs box of SR space.
+        for index_sr, row_sr in df_sr_space.iterrows():
+            
+            box_sr = pd.Series([row_sr['xmin'], row_sr['ymin'], row_sr['zmin'], row_sr['xmax'], row_sr['ymax'], row_sr['zmax']])
+            
+            # the secondary box.
+            for index_sec, row_sec in secondary_df.iterrows():
+                box_second = pd.Series([row_sec['xmin'], row_sec['ymin'], row_sec['zmin'], row_sec['xmax'], row_sec['ymax'], row_sec['zmax']])
+                
+                # if included.
+                if is_included(box_second, box_sr):
+                    included_indices.append(index_sec)
+                
+                # if intersected.
+                elif is_intersected(box_second, box_sr):
+                    intersecting_indices.append(index_sec)
+        
+        # record the indices.
+        secondary_dfs[sec_inst].update(
+            {
+                'included_indices': included_indices,
+                'intersected_indices': intersecting_indices,}
+        )
+
+        # write out
+        df_included = secondary_dfs[sec_inst]['feature'].loc[secondary_dfs[sec_inst]['included_indices']].drop_duplicates()
+        df_intersected = secondary_dfs[sec_inst]['feature'].loc[secondary_dfs[sec_inst]['intersected_indices']].drop_duplicates()
+        
+        df_included.to_csv(DIRS_DATA_RES + '\df_included_' + sec_inst + '.csv', index=False)
+        df_intersected.to_csv(DIRS_DATA_RES +'\df_intersected_' + sec_inst + '.csv', index=False)
+
+        print ("done with", sec_inst)

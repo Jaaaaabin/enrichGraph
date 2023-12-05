@@ -11,13 +11,15 @@ from graphEnricher import graphEnrich
 from pairRooms import getRoomPairs
 
 if __name__ == "__main__":
+    
+    # topo-extraction.
 
-    #=================================#
-    #                ini               #
-    #=================================#
-    # topoCollect()
-    # graphCreate()
-    # featureCollect()
+    topoCollect()
+    graphCreate()
+    
+    # gnn-feature-buildup.
+    featureCollect()
     securityroomQuery()
+
     # graphEnrich(plot_graph=True)
     # getRoomPairs()

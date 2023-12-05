@@ -3,7 +3,7 @@
 #
 
 # import modules
-from const_project import DIRS_DATA_GNN, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
+from const_project import DIRS_DATA_GNN, DIRS_DATA_RES, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
 from const_project import NAME_FEATURE_INSTANCES_UNIT_DY, NAME_FEATURE_INSTANCES_UNIT_CM, CT_METER2FEET
 from funct_topo import *
 
@@ -37,6 +37,6 @@ def featureCollect():
         
         df_instance = df_instance_init
         df_instance.to_csv(
-            DIRS_DATA_GNN+'\df_feature_'+ feature_inst +'.csv',
+            DIRS_DATA_RES+'\df_feature_'+ feature_inst +'.csv',
             index=False,
             encoding = 'utf-8-sig') # encoding = 'utf-8-sig' for special characters.
