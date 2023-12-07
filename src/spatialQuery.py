@@ -138,6 +138,3 @@ def securityroomQuery():
 
     df_included_all.to_csv(DIRS_DATA_RES + '\df_included_feature_all.csv', index=False)
     df_intersected_all.to_csv(DIRS_DATA_RES +'\df_intersected_feature_all.csv', index=False)
-
-    
-

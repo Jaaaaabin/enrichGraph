@@ -110,10 +110,7 @@ def graphCreate():
     df_separationlineinstances = pd.read_csv(DIRS_DATA_TOPO+'\df_separationline.csv', index_col = index_col_name, dtype={'id':str})
     attrs_separationline = df_separationlineinstances.to_dict(orient = 'index')
 
-    ## =================================EC3. first part.
-    # all_df_edges = [df_edges_space_h_separationlines, df_edges_space_h_doors]
-
-    # ## =================================EC3. second part.
+    # ================================
     all_df_edges = [df_edges_wall_h_walls, df_edges_wall_h_inserts, df_edges_space_h_walls, df_edges_space_h_separationlines]
     all_dict_attrs = [attrs_door, attrs_window, attrs_wall, attrs_space, attrs_separationline]
 
