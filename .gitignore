@@ -15,7 +15,6 @@ tempo*.py
 # Distribution / packaging
 .Python
 archive/
-data/
 
 # Django stuff:
 *.log

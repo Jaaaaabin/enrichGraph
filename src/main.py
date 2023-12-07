@@ -13,9 +13,9 @@ if __name__ == "__main__":
     # topoCollect()
     # graphCreate()
     
-    # run only ----- community-detection-buildup.
+    # run only for ----- community-detection-buildup.
     getRoomPairs()
 
-    # ----- gnn-feature-buildup.
+    # run only for ----- gnn-feature-buildup.
     # featureCollect()
     # securityroomQuery()
