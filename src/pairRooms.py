@@ -1,5 +1,6 @@
 from const_project import DIRS_DATA_TOPO, DIRS_DATA_RES
 import pandas as pd
+import itertools
 
 # Specify the input and output file names
 
@@ -49,19 +50,39 @@ def get_space_pairs_via_connections_per_level(spaces_file, host_file, host_conne
                     else:
                         dict_connection_to_spaces[connection] = [space]
 
-    
         # Create a set to store unique pairs of spaces
         space_pairs = set()
 
         # Iterate through the door to space mapping
         for spaces in dict_connection_to_spaces.values():
-            if len(spaces) == 2:  # Assuming one door connects exactly two spaces
-                space_pair = tuple(sorted(spaces))
-                space_pairs.add(space_pair)
-            else:
-                print(f"The {pair_connection_type} connects more than two spaces: {spaces}")
+            
+            # one door can only connect two space..
+            if pair_connection_type == 'Door':
+                
+                if len(spaces) == 2:  
+                    space_pair = tuple(sorted(spaces))
+                    space_pairs.add(space_pair)
+                else:
+                    print(f"The {pair_connection_type} connects more than two spaces: {spaces}")
+
+            # one separation line can connect more than two spaces..
+            elif pair_connection_type == "SeparationLine":
+
+                if len(spaces) == 2:            
+                    space_pair = tuple(sorted(spaces))
+                    space_pairs.add(space_pair)
+
+                elif len(spaces) > 2:
+                    tempo_all_space_pair = itertools.combinations(spaces, 2)
+                    all_space_pair = sorted([tuple(space_pair) for space_pair in tempo_all_space_pair])
+                    [space_pairs.add(space_pair) for space_pair in all_space_pair]
+
+                else:
+                    print(f"The {pair_connection_type} connects less than two spaces: {spaces}")
+                    
 
         output_file_per_level = output_file + level + '.txt'
+
         # Write the pairs to the output file
         with open(output_file_per_level, 'w') as out_file:
             for pair in space_pairs:
@@ -69,7 +90,6 @@ def get_space_pairs_via_connections_per_level(spaces_file, host_file, host_conne
 
 def getRoomPairs():
     
-    # Use the function to get space pairs and write them to a file
     get_space_pairs_via_connections_per_level(
         spaces_csv_file,
         host_file,
