@@ -6,7 +6,7 @@ from topoCollection import topoCollect
 from graphCreation import graphCreate
 from pairRooms import getRoomPairs
 from featureCollection import featureCollect
-from spatialQuery import securityroomQuery
+from spatialQuery import buildVerticalEdges
 
 if __name__ == "__main__":
     
@@ -15,8 +15,8 @@ if __name__ == "__main__":
     # graphCreate()
     
     # # run only for ----- community-detection-buildup.
-    getRoomPairs()
+    # getRoomPairs()
     
     # # run only for ----- gnn-feature-buildup.
     # featureCollect()
-    # securityroomQuery()
+    buildVerticalEdges()

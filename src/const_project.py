@@ -25,6 +25,6 @@ NAME_FEATURES_INSTANCES_ARE = ['door','window']
 NAME_FEATURE_INSTANCES_UNIT_DY= ['xmax','ymax','zmax','xmin','ymin','zmin']
 NAME_FEATURE_INSTANCES_UNIT_CM= ['xmax','ymax','zmax','xmin','ymin','zmin','length','height','width']
 
-CT_METER2FEET =3.28084
+CT_METER2FEET = 3.28084
 
 
