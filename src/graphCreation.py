@@ -110,14 +110,18 @@ def graphCreate():
     df_separationlineinstances = pd.read_csv(DIRS_DATA_TOPO+'\df_separationline.csv', index_col = index_col_name, dtype={'id':str})
     attrs_separationline = df_separationlineinstances.to_dict(orient = 'index')
 
-    # ================================
+    # ================================ for ec3.
     all_df_edges = [df_edges_wall_h_walls, df_edges_wall_h_inserts, df_edges_space_h_walls, df_edges_space_h_separationlines]
     all_dict_attrs = [attrs_door, attrs_window, attrs_wall, attrs_space, attrs_separationline]
 
     # save to a networkx graph.
     G_all = build_networkx_graph(all_df_edges, all_dict_attrs)
     pickle.dump(G_all, open(FILE_INI_GRAPH, 'wb'))
-    # save all the edges to a csv.
-    df_edges_output = pd.concat(all_df_edges)
-    df_edges_output.to_csv(DIRS_DATA_RES +'\df_all_topological_edges.csv', index=False)
+
+    # ================================ save all the required edges to csvs.
+    # ------------------------- Space to Wall
+    df_edges_space_h_walls.to_csv(DIRS_DATA_RES +'\df_pairs_space_to_wall_tempo.csv', index=False)
+
+    # -------------------------- Wall to windows and doors.
+    df_edges_wall_h_inserts.to_csv(DIRS_DATA_RES +'\df_pairs_wall_to_opening_tempo.csv', index=False)
 
