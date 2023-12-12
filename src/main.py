@@ -18,5 +18,5 @@ if __name__ == "__main__":
     # getRoomPairs()
     
     # # run only for ----- gnn-feature-buildup.
-    # featureCollect()
+    featureCollect()
     buildVerticalEdges()
