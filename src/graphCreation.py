@@ -4,12 +4,12 @@
 
 # import modules
 from const_project import DIRS_DATA_TOPO, DIRS_DATA_RES
-from const_project import NAME_TOPO_OBJECT, NAME_TOPO_SPACE, FILE_INI_GRAPH
+from const_project import NAME_TOPO_OBJECT, NAME_TOPO_SPACE, FILE_INI_GRAPH, FILE_INI_GRAPH_ACCESS
 
 from funct_topo import *
 
-def graphCreate():
-    
+def graphCreate(plot_graph_accessibility=False):
+
     # object-based
     FILE_OBJECT_HOST = DIRS_DATA_TOPO + NAME_TOPO_OBJECT + 'host.txt'
     FILE_OBJECT_WALLS = DIRS_DATA_TOPO + NAME_TOPO_OBJECT + 'walls.txt'
@@ -53,10 +53,13 @@ def graphCreate():
     with open(FILE_SPACE_SEPARATIONS) as file:
         for line in file:
             id_space_separationlines.append(line.rstrip())
-    
-    id_space_windows.append('')
-    id_space_separationlines.append('')
 
+    # ==================== manual correction!
+    id_wall_inserts.append('')
+    id_space_doors.append('')
+    id_space_windows.append('')
+    # ==================== manual correction!
+    
     # Build networkx edges 
     # wall-based edges.
     id_wall_host_indi = split_ids(id_wall_host)
@@ -111,6 +114,8 @@ def graphCreate():
     attrs_separationline = df_separationlineinstances.to_dict(orient = 'index')
 
     # ================================ for ec3.
+
+    # ------------------------- for vertical graph.
     all_df_edges = [df_edges_wall_h_walls, df_edges_wall_h_inserts, df_edges_space_h_walls, df_edges_space_h_separationlines]
     all_dict_attrs = [attrs_door, attrs_window, attrs_wall, attrs_space, attrs_separationline]
 
@@ -118,10 +123,63 @@ def graphCreate():
     G_all = build_networkx_graph(all_df_edges, all_dict_attrs)
     pickle.dump(G_all, open(FILE_INI_GRAPH, 'wb'))
 
-    # ================================ save all the required edges to csvs.
-    # ------------------------- Space to Wall
+    #  save all the required edges to csvs.
     df_edges_space_h_walls.to_csv(DIRS_DATA_RES +'\df_pairs_space_to_wall_tempo.csv', index=False)
-
-    # -------------------------- Wall to windows and doors.
     df_edges_wall_h_inserts.to_csv(DIRS_DATA_RES +'\df_pairs_wall_to_opening_tempo.csv', index=False)
 
+    # ------------------------- for horizontal graph.
+    accessibility_df_edges = [df_edges_space_h_doors, df_edges_space_h_separationlines]
+    accessibility_df_attrs = [attrs_door, attrs_space, attrs_separationline]
+    accessibility_G_all = build_networkx_graph(accessibility_df_edges, accessibility_df_attrs)
+    pickle.dump(accessibility_G_all, open(FILE_INI_GRAPH_ACCESS, 'wb'))
+
+    if plot_graph_accessibility:
+
+        # visualization settings.
+        nodesize_map_by_object_type = {
+            'door':100,
+            'separationline':100,
+            'space':200,
+            }
+
+        nodecolor_map_by_object_type = {
+            'door':'black',
+            'separationline':'darkgreen',
+            'space':'darkorange',
+            }
+        
+        with open(FILE_INI_GRAPH_ACCESS, 'rb') as f:
+            UG = pickle.load(f)
+
+        # - - - - - - - - - - - - - - 
+        sub_graphs = [UG.subgraph(c).copy() for c in nx.connected_components(UG)]
+        
+        for i, SG in enumerate(sub_graphs):
+
+            fig = plt.figure(figsize=(30, 18))
+            ax = plt.axes((0.05, 0.05, 0.90, 0.90))
+            G_nodes_sizes = [nodesize_map_by_object_type[SG.nodes[n]['classification']]
+                            for n in SG]
+            G_nodes_colors = [nodecolor_map_by_object_type[SG.nodes[n]['classification']]
+                            for n in SG]
+
+            nx.draw_networkx(
+                SG,
+                # pos=nx.kamada_kawai_layout(UG, scale=0.75),
+                # pos = nx.spiral_layout(G, scale=pos_layout_scale),
+                arrows=True,
+                with_labels=False,
+                node_size=G_nodes_sizes,
+                node_shape="o",
+                node_color=G_nodes_colors,
+                linewidths=0.1,
+                width=2,
+                alpha=0.80,
+                edge_color='black')
+            ax.title.set_position([.5, 0.975])
+
+            for kk in list(nodecolor_map_by_object_type.keys()):
+                plt.scatter([], [], c=nodecolor_map_by_object_type[kk], label=kk)
+
+            plt.legend(fontsize="xx-large", ncol=4, loc=(0.40,0.025))
+            plt.savefig(DIRS_DATA_RES + '\\plotting_G_{}.png'.format(i), dpi=200)

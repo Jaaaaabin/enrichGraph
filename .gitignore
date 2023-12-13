@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 tempo*.py
+plotting*.png
 
 # rvt models
 *.rvt

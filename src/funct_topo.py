@@ -132,6 +132,7 @@ def build_id_edges(
         lst_host, lst_targets, set_sort=True):
     
     all_edges = []
+
     if len(lst_host) != len(lst_targets):
         return all_edges
     else:
@@ -145,6 +146,7 @@ def build_id_edges(
     if set_sort:
         all_edges = [sorted(x, key=lambda x:x[0]) for x in all_edges]
     all_edges = [list(i) for i in set(map(tuple, all_edges))]
+    
     return all_edges
 
 

@@ -103,3 +103,4 @@ def getRoomPairs():
         separationlines_file,
         output_file_by_separationline,
         pair_connection_type='SeparationLine')
+    

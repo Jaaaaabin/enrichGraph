@@ -9,6 +9,7 @@ DIRS_DATA_TOPO = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_de
 DIRS_DATA_GNN = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_gnn'
 DIRS_DATA_RES =  r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res'
 
+FILE_INI_GRAPH_ACCESS = DIRS_DATA_RES + r'\res_graph_access.txt'
 FILE_INI_GRAPH = DIRS_DATA_RES + r'\res_graph.txt'
 
 NAME_TOPO_INSTANCES = ['door','window','wall','slab','space','separationline']
