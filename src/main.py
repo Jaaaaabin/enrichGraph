@@ -10,13 +10,13 @@ from spatialQuery import buildVerticalEdges
 
 if __name__ == "__main__":
     
-    # # ----- topo-extraction.
+    # # # ----- topo-extraction.
     # topoCollect()
     # graphCreate()
     
-    # # run only for ----- community-detection-buildup.
+    # # # run only for ----- community-detection-buildup.
     # getRoomPairs()
     
-    # # run only for ----- gnn-feature-buildup.
+    # run only for ----- gnn-feature-buildup.
     featureCollect()
     buildVerticalEdges()
