@@ -12,11 +12,11 @@ if __name__ == "__main__":
     
     # # # ----- topo-extraction.
     # topoCollect()
-    graphCreate(plot_graph_accessibility=False)
+    # graphCreate(plot_graph_accessibility=False)
     
     # # # run only for ----- community-detection-buildup.
     # getRoomPairs()
     
     # # # run only for ----- gnn-feature-buildup.
     # featureCollect()
-    # buildVerticalEdges()
+    buildVerticalEdges()
