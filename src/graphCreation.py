@@ -56,8 +56,7 @@ def graphCreate(plot_graph_accessibility=False):
 
     # ==================== manual correction!
     id_wall_inserts.append('')
-    id_space_doors.append('')
-    id_space_windows.append('')
+    id_space_separationlines.append('')
     # ==================== manual correction!
     
     # Build networkx edges 

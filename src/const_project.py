@@ -4,9 +4,14 @@
 
 # # # # # # # # #
 
-# EC3 paper with Tanya.
-DIRS_DATA_TOPO = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_topology'
-DIRS_DATA_GNN = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_gnn'
+# EC3 paper
+
+# DIRS_DATA_TOPO = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_topology'
+DIRS_DATA_TOPO = r'H:\2024ec3\ec3_new\topology'
+
+# DIRS_DATA_GNN = r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\data\Bld type3_detached_gnn'
+DIRS_DATA_GNN = r'H:\2024ec3\ec3_new\gnn'
+
 DIRS_DATA_RES =  r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res'
 
 FILE_INI_GRAPH_ACCESS = DIRS_DATA_RES + r'\res_graph_access.txt'
@@ -29,3 +34,4 @@ NAME_FEATURE_INSTANCES_UNIT_CM= ['xmax','ymax','zmax','xmin','ymin','zmin','leng
 CT_METER2FEET = 3.28084
 
 
+# 

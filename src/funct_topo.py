@@ -129,7 +129,7 @@ def split_ids(guids, separator=',', remove_repeat=False):
 
 
 def build_id_edges(
-        lst_host, lst_targets, set_sort=True):
+        lst_host, lst_targets, set_sort=False): # not sort!
     
     all_edges = []
 

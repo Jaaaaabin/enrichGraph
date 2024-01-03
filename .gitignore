@@ -10,6 +10,8 @@ plotting*.png
 *.rvt
 *.dyn
 
+old_res/
+
 # C extensions
 *.so
 

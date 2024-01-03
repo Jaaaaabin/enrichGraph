@@ -41,3 +41,39 @@ def featureCollect():
             index=False,
             encoding = 'utf-8-sig')# encoding = 'utf-8-sig' for special characters.
 
+def cleanCSVPairs(csv_file_path, output_file_path):
+
+    # Read the CSV file into a DataFrame
+    df = pd.read_csv(csv_file_path, header=None)
+
+    # Assuming the ID pairs are in the first two columns
+    # Sort each pair to ensure (A, B) and (B, A) are treated as the same
+    df_sorted = df.apply(lambda x: sorted(x), axis=1)
+    df_sorted = pd.DataFrame(df_sorted.tolist(), columns=df.columns)
+
+    # Drop duplicate rows
+    df_cleaned = df_sorted.drop_duplicates()
+
+    # Save the cleaned DataFrame to a new CSV file
+    df_cleaned.to_csv(output_file_path, index=False, header=False)
+
+def compareCSVFiles(path_1, path_2, diff_path, overlap_path):
+
+    def read_and_sort_csv(file_path):
+        df = pd.read_csv(file_path, header=None)
+        df_sorted = df.apply(lambda x: sorted(x), axis=1)
+        return pd.DataFrame(df_sorted.tolist(), columns=df.columns)
+
+    # Read and sort both CSV files
+    df1 = read_and_sort_csv(path_1)
+    df2 = read_and_sort_csv(path_2)
+
+    # Find different and overlapping pairs
+    different_pairs = pd.concat([df1, df2]).drop_duplicates(keep=False)
+    overlapping_pairs = df1.merge(df2).drop_duplicates()
+
+    # Save the results to separate CSV files
+    different_pairs.to_csv(diff_path, index=False, header=False)
+    overlapping_pairs.to_csv(overlap_path, index=False, header=False)
+
+    
