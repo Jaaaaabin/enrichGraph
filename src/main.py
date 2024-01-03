@@ -5,8 +5,9 @@
 from topoCollection import topoCollect
 from graphCreation import graphCreate
 from pairRooms import getRoomPairs
-from featureCollection import featureCollect, cleanCSVPairs, compareCSVFiles
+from featureCollection import featureCollect, cleanCSVPairs, compareCSVFiles, mergeEdgesinCSV, FilterIds
 from spatialQuery import buildVerticalEdges
+from const_project import DIRS_DATA_RES
 
 if __name__ == "__main__":
     
@@ -21,9 +22,13 @@ if __name__ == "__main__":
     # featureCollect()
     # buildVerticalEdges()
 
-    compareCSVFiles(
-        path_1=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res\df_edges.csv',
-        path_2=r'H:\2024ec3\new_Edges_clean.csv',
-        diff_path=r'H:\2024ec3\diff.csv',
-        overlap_path=r'H:\2024ec3\overlap.csv',
-    )
+    # merge edge data.
+    mergeEdgesinCSV()
+    FilterIds()
+
+    # compareCSVFiles(
+    #     path_1=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res\df_edges.csv',
+    #     path_2=r'H:\2024ec3\new_Edges_clean.csv',
+    #     diff_path=r'H:\2024ec3\diff.csv',
+    #     overlap_path=r'H:\2024ec3\overlap.csv',
+    # )

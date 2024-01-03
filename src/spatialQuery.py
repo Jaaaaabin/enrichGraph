@@ -232,7 +232,8 @@ def buildVerticalEdges():
     # output the features of all the related/covered/included spaces  
     df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr.csv', index=False)
 
-    space_intersection_pairs = findIntersectedElements(secondary_df, all_included_spaces_indices, tol_z=0.2)
+    space_intersection_pairs = findIntersectedElements(
+        secondary_df, all_included_spaces_indices, tol_z=0.2)
     df_pairs_space_intersection = pd.DataFrame(space_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_space_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection.csv', index=False)
 
@@ -249,7 +250,8 @@ def buildVerticalEdges():
     related_secondary_df = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
     all_intersection_related_walls_indices = related_secondary_df.index.values.tolist()
     
-    wall_intersection_paris = findIntersectedElements(secondary_df, all_intersection_related_walls_indices, tol_z=0.2)
+    wall_intersection_paris = findIntersectedElements(
+        secondary_df, all_intersection_related_walls_indices, tol_z=0.2)
     df_pairs_wall_intersection = pd.DataFrame(wall_intersection_paris, columns=['host', 'target']).drop_duplicates()
     df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
 
