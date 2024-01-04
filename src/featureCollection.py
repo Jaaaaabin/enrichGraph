@@ -118,7 +118,6 @@ def mergeEdgesinCSV():
     combined_feature_df.to_csv(combined_feature_csv_path, index=False, header=False)
 
 def FilterIds(
-        
     edge_csv_file=DIRS_DATA_RES + '\df_all_edges.csv', 
     feature_csv_file=DIRS_DATA_RES + '\df_all_features_all.csv', 
     output_csv=DIRS_DATA_RES + '\df_all_features.csv'):
