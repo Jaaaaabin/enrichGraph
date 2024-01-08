@@ -89,7 +89,7 @@ def mergeEdgesinCSV():
 
         # Loop through each file and append to the DataFrame
         for file in csv_files:
-            df = pd.read_csv(file, header=None)
+            df = pd.read_csv(file)
             combined_df = pd.concat([combined_df, df])
 
         # Reset the index of the combined DataFrame
@@ -97,6 +97,7 @@ def mergeEdgesinCSV():
 
         return combined_df
     
+    # edges.
     edge_csv_files = [
         DIRS_DATA_RES + '\df_pairs_space_intersection.csv',
         DIRS_DATA_RES + '\df_pairs_space_intersection_to_wall.csv',
@@ -105,8 +106,13 @@ def mergeEdgesinCSV():
     
     combined_edge_csv_path = DIRS_DATA_RES + '\df_all_edges.csv'
     combined_edge_df = combine_csv_files(edge_csv_files)
-    combined_edge_df.to_csv(combined_edge_csv_path, index=False, header=False)
 
+    df_getcolumns = pd.read_csv(edge_csv_files[0])
+    combined_edge_df.columns = df_getcolumns.columns
+
+    combined_edge_df.to_csv(combined_edge_csv_path, index=False, header=True)
+
+    # features.
     feature_csv_files = [
         DIRS_DATA_RES + '\df_feature_space.csv',
         DIRS_DATA_RES + '\df_feature_wall.csv',
@@ -115,7 +121,31 @@ def mergeEdgesinCSV():
 
     combined_feature_csv_path = DIRS_DATA_RES + '\df_all_features_all.csv'
     combined_feature_df = combine_csv_files(feature_csv_files)
-    combined_feature_df.to_csv(combined_feature_csv_path, index=False, header=False)
+
+    # df_getcolumns = pd.read_csv(feature_csv_files[0])
+    # combined_feature_df.columns = df_getcolumns.columns
+
+    combined_feature_df.to_csv(combined_feature_csv_path, index=False, header=True)
+
+
+# def FilterIds(
+#     edge_csv_file=DIRS_DATA_RES + '\df_all_edges.csv', 
+#     feature_csv_file=DIRS_DATA_RES + '\df_all_features_all.csv', 
+#     output_csv=DIRS_DATA_RES + '\df_all_features.csv'):
+
+#     # Read CSV1 and extract IDs from the first column
+#     df_edge = pd.read_csv(edge_csv_file, header=None)
+#     ids_from_edges = set(df_edge[0]).union(set(df_edge[1]))
+
+#     # Read CSV2
+#     df_features = pd.read_csv(feature_csv_file)
+
+#     # Filter rows from CSV2 where the ID is in CSV1
+#     filtered_df = df_features[df_features.iloc[:, 0].isin(ids_from_edges)]
+
+#     # Save the filtered DataFrame to a new CSV file
+#     filtered_df.to_csv(output_csv, index=False)
+
 
 def FilterIds(
     edge_csv_file=DIRS_DATA_RES + '\df_all_edges.csv', 
@@ -123,8 +153,11 @@ def FilterIds(
     output_csv=DIRS_DATA_RES + '\df_all_features.csv'):
 
     # Read CSV1 and extract IDs from the first column
-    df_edge = pd.read_csv(edge_csv_file, header=None)
-    ids_from_edges = set(df_edge[0]).union(set(df_edge[1]))
+    df_edge = pd.read_csv(edge_csv_file, header=0)
+    
+    # ids_from_edges = set(df_edge['host']).union(set(df_edge['target']))
+    ids_from_edges = df_edge.values.tolist()
+    ids_from_edges = list(set([item for sublist in ids_from_edges for item in sublist]))
 
     # Read CSV2
     df_features = pd.read_csv(feature_csv_file)

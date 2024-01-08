@@ -23,12 +23,12 @@ if __name__ == "__main__":
     # buildVerticalEdges()
 
     # merge edge data.
-    mergeEdgesinCSV()
-    FilterIds()
+    # mergeEdgesinCSV()
+    # FilterIds()
 
-    # compareCSVFiles(
-    #     path_1=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res\df_edges.csv',
-    #     path_2=r'H:\2024ec3\new_Edges_clean.csv',
-    #     diff_path=r'H:\2024ec3\diff.csv',
-    #     overlap_path=r'H:\2024ec3\overlap.csv',
-    # )
+    compareCSVFiles(
+        path_1=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res\df_all_edges.csv',
+        path_2=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\Data-Maen.csv',
+        diff_path=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\diff.csv',
+        overlap_path=r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\overlap.csv',
+    )
