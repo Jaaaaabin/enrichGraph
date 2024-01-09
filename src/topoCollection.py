@@ -18,6 +18,20 @@ def topoCollect():
         with open(js_file_instance, encoding="utf-8-sig") as json_file: # encoding = 'utf-8-sig' for special characters.
             revit_instances = json.load(json_file)
         
+        #---
+        # remove the "#" in the json keys.
+        test_ins = revit_instances[0]
+        old_key, new_key = [], []
+        for key in test_ins.keys():
+            if "#" in key:
+                old_key = key
+                new_key = key.replace("#","")
+                print("yes")
+        if old_key != new_key:
+            for ii in range(len(revit_instances)):
+                revit_instances[ii][new_key] = revit_instances[ii].pop(old_key)
+        #---
+        
         # create class objects for each dict.
         cls_objs_instances = convert_revitdict_to_clsobjs(revit_instances, class_name=topo_inst)
 

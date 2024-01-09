@@ -37,7 +37,7 @@ def is_intersected(box1, box2, tol_z=0.0, refined_box=False):
     if refined_box:
 
         # in case extra-intersection among walls on the same floor needs to be excluded, refined boxes are considered.
-        per_refine = 0.1
+        per_refine = 0.2
         
         #box1.
         d_x_1, d_y_1 = box1.loc[3] - box1.loc[0], box1.loc[4] - box1.loc[1] 
@@ -233,7 +233,7 @@ def buildVerticalEdges():
     df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr.csv', index=False)
 
     space_intersection_pairs = findIntersectedElements(
-        secondary_df, all_included_spaces_indices, tol_z=0.2)
+        secondary_df, all_included_spaces_indices, tol_z=0.15)
     df_pairs_space_intersection = pd.DataFrame(space_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_space_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection.csv', index=False)
 
@@ -251,7 +251,7 @@ def buildVerticalEdges():
     all_intersection_related_walls_indices = related_secondary_df.index.values.tolist()
     
     wall_intersection_paris = findIntersectedElements(
-        secondary_df, all_intersection_related_walls_indices, tol_z=0.2)
+        secondary_df, all_intersection_related_walls_indices, tol_z=0.15)
     df_pairs_wall_intersection = pd.DataFrame(wall_intersection_paris, columns=['host', 'target']).drop_duplicates()
     df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
 
