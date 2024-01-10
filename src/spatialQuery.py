@@ -17,27 +17,26 @@ def is_included(box1, box2, tol_inclusion=0.0):
 
     return inclusion_side_min and inclusion_side_max
 
-def is_intersected(box1, box2, tol_z=0.0, refined_box=False):
+def is_intersected(
+    box1, box2, tol_z=0.0, refined_box=0, count_inclusion=False):
     
-    # no tolerance.
-    if box1.loc[2] < box1.loc[5]:
-        box1.loc[2] -= tol_z 
-        box1.loc[5] += tol_z
-    else:
-        box1.loc[2] += tol_z 
-        box1.loc[5] -= tol_z
-
-    if box2.loc[2] < box2.loc[5]:
-        box2.loc[2] -= tol_z 
-        box2.loc[5] += tol_z
-    else:
-        box2.loc[2] += tol_z 
-        box2.loc[5] -= tol_z
-
-    if refined_box:
+    # for box1 and box2: xmin, ymin, zmin, xmax, ymax, zmax.
+    if not (box1.loc[0] <= box1.loc[3] and box1.loc[1] <= box1.loc[4] and box1.loc[2] <= box1.loc[5] and \
+    box2.loc[0] <= box2.loc[3] and box2.loc[1] <= box2.loc[4] and box2.loc[2] <= box2.loc[5]):
+        
+        raise Exception("Sorry, check here.")
+    
+    # z tolerance
+    box1.loc[2] -= tol_z 
+    box1.loc[5] += tol_z
+    
+    box2.loc[2] -= tol_z 
+    box2.loc[5] += tol_z
+    
+    if refined_box != 0 :
 
         # in case extra-intersection among walls on the same floor needs to be excluded, refined boxes are considered.
-        per_refine = 0.2
+        per_refine = refined_box
         
         #box1.
         d_x_1, d_y_1 = box1.loc[3] - box1.loc[0], box1.loc[4] - box1.loc[1] 
@@ -54,25 +53,28 @@ def is_intersected(box1, box2, tol_z=0.0, refined_box=False):
         box2.loc[3] -= d_x_2 * per_refine
         box2.loc[1] += d_y_2 * per_refine
         box2.loc[4] -= d_y_2 * per_refine
+    
+    # if count the inclusion as intersection.
+    if count_inclusion:
 
-    # if box1 is IN box2.
-    if is_included(box1,box2):
+        if is_included(box1,box2) or is_included(box2,box1):
+            return True
+    
+    # or not.
+    else:
 
+        if is_included(box1,box2) or is_included(box2,box1):
+            return False
+    
+    if (box1[0] > box2[3] or box2[0] > box1[3]) or \
+        (box1[1] > box2[4] or box2[1] > box1[4]) or \
+        (box1[2] > box2[5] or box2[2] > box1[5]):
+        
         return False
-    
-    # if box1 is not IN box2.
-    elif (box1[3] >=box2[0] and box2[3] >=box1[0]) and \
-        (box1[4] >=box2[1] and box2[4] >=box1[1]) and \
-            (box1[5] >=box2[2] and box2[5] >=box1[2]):
+
+    else:
         
-        return True 
-    
-    # if box2 is not in box1.
-    elif (box2[3] >=box1[0] and box1[3] >=box2[0]) and \
-        (box2[4] >=box1[1] and box1[4] >=box2[1]) and \
-            (box2[5] >=box1[2] and box1[5] >=box2[2]):
-        
-        return True 
+        return True
     
 def securityroomQueryBasic(sr_feature_inst, secondary_feature_insts):
     
@@ -124,8 +126,7 @@ def findInclusionSpace(df_sr_space, secondary_df):
         box_sr = pd.Series([row_sr['xmin'], row_sr['ymin'], row_sr['zmin'], row_sr['xmax'], row_sr['ymax'], row_sr['zmax']])
         
         # the secondary box.
-        included_spaces, intersected_spaces = [], []
-        included_indices, intersected_indices = [], []
+        included_spaces,included_indices = [], []
         
         for index_sec, row_sec in secondary_df.iterrows():
             box_second = pd.Series([row_sec['xmin'], row_sec['ymin'], row_sec['zmin'], row_sec['xmax'], row_sec['ymax'], row_sec['zmax']])
@@ -142,8 +143,61 @@ def findInclusionSpace(df_sr_space, secondary_df):
     flatten_all_included_spaces_indices = [item for sublist in all_included_spaces_indices for item in sublist]
     df_included_spaces = secondary_df.loc[flatten_all_included_spaces_indices].drop_duplicates()
     
-    return df_included_spaces, all_included_spaces, all_included_spaces_indices
+    return df_included_spaces
     
+def findIntersectedSpaces(all_spaces, tol_z = 0.0, count_inclusion=False):
+
+    ids =  all_spaces['id'].tolist()
+    ids_index = range(0, len(ids))
+
+    combinations_ids_index = list(itertools.combinations(ids_index,2))
+    
+    element_intersection_pairs = []
+
+    for (a,b) in combinations_ids_index:
+
+        box_a = pd.Series(
+            [all_spaces.loc[a]['xmin'], all_spaces.loc[a]['ymin'], all_spaces.loc[a]['zmin'], all_spaces.loc[a]['xmax'], all_spaces.loc[a]['ymax'], all_spaces.loc[a]['zmax']])
+
+        box_b = pd.Series(
+            [all_spaces.loc[b]['xmin'], all_spaces.loc[b]['ymin'], all_spaces.loc[b]['zmin'], all_spaces.loc[b]['xmax'], all_spaces.loc[b]['ymax'], all_spaces.loc[b]['zmax']])
+        
+        intersected_element_ids = [int(all_spaces.loc[a]['id']), int(all_spaces.loc[b]['id'])]
+
+        if is_intersected(
+            box_a, box_b, tol_z=tol_z, refined_box=0, count_inclusion=count_inclusion) and intersected_element_ids not in element_intersection_pairs:
+            
+            print(" Intersection Space Number +1.")
+            element_intersection_pairs.append(intersected_element_ids)
+            
+    return element_intersection_pairs
+
+def findIntersectedWalls(all_walls, tol_z=0.0, refined_box=0, count_inclusion=True):
+
+    ids =  all_walls['id'].tolist()
+    ids_index = range(0, len(ids))
+
+    combinations_ids_index = list(itertools.combinations(ids_index,2))
+    
+    element_intersection_pairs = []
+
+    for (a,b) in combinations_ids_index:
+
+        box_a = pd.Series(
+            [all_walls.loc[a]['xmin'], all_walls.loc[a]['ymin'], all_walls.loc[a]['zmin'], all_walls.loc[a]['xmax'], all_walls.loc[a]['ymax'], all_walls.loc[a]['zmax']])
+
+        box_b = pd.Series(
+            [all_walls.loc[b]['xmin'], all_walls.loc[b]['ymin'], all_walls.loc[b]['zmin'], all_walls.loc[b]['xmax'], all_walls.loc[b]['ymax'], all_walls.loc[b]['zmax']])
+        
+        intersected_element_ids = [int(all_walls.loc[a]['id']), int(all_walls.loc[b]['id'])]
+
+        if is_intersected(
+            box_a, box_b, tol_z=tol_z, refined_box=refined_box, count_inclusion=count_inclusion) and intersected_element_ids not in element_intersection_pairs:
+            
+            print(" Intersection Wall Number +1.")
+            element_intersection_pairs.append(intersected_element_ids)
+            
+    return element_intersection_pairs
 
 def findIntersectedElements(secondary_df, all_element_indices, tol_z=0.0):
 
@@ -168,9 +222,9 @@ def findIntersectedElements(secondary_df, all_element_indices, tol_z=0.0):
                     
                     intersected_element_ids = [int(secondary_df.loc[a]['id']),int(secondary_df.loc[b]['id'])]
 
-                    if is_intersected(box_a, box_b, tol_z=tol_z) and intersected_element_ids not in element_intersection_pairs:
+                    if is_intersected(box_a, box_b, tol_z=tol_z, count_inclusion=False) and intersected_element_ids not in element_intersection_pairs:
                         
-                        print("intersection space +1")
+                        print(" Intersection Space Number +1.")
                         element_intersection_pairs.append(intersected_element_ids)
 
             else:
@@ -196,7 +250,7 @@ def findIntersectedElements(secondary_df, all_element_indices, tol_z=0.0):
                 
                 intersected_element_ids = [int(secondary_df.loc[a]['id']),int(secondary_df.loc[b]['id'])]
 
-                if is_intersected(box_a, box_b, tol_z=tol_z, refined_box=True) and intersected_element_ids not in element_intersection_pairs:
+                if is_intersected(box_a, box_b, tol_z=tol_z, refined_box=True, count_inclusion=True) and intersected_element_ids not in element_intersection_pairs:
                     
                     print("intersection wall +1")
                     element_intersection_pairs.append(intersected_element_ids)
@@ -221,19 +275,19 @@ def filterElement(df_primary, df_second, columns_primary=[], columns_second='',)
 def buildVerticalEdges():
     
     # --------------------------------------------- SR -> Space
-    # identify the Serucity Spaces and gather all the feature documents 
-    # find spaces included by the vertical boxes by each Security Spaces
+    # identify the Serucity Spaces and gather all the feature documents, and find spaces included by the vertical boxes by each Security Spaces
 
     df_sr_space, secondary_dfs = securityroomQueryBasic(NAME_FEATURES_INSTANCES[0], NAME_FEATURES_INSTANCES[1:])
     secondary_df = secondary_dfs['space']['feature']
-    df_included_spaces, all_included_spaces, all_included_spaces_indices = findInclusionSpace(df_sr_space, secondary_df)
-    
-    # --------------------------------------------- Space Level.
-    # output the features of all the related/covered/included spaces  
-    df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr.csv', index=False)
+    df_included_spaces = findInclusionSpace(df_sr_space, secondary_df)
 
-    space_intersection_pairs = findIntersectedElements(
-        secondary_df, all_included_spaces_indices, tol_z=0.15)
+    # --------------------------------------------- Space Level Connections.
+    # df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr.csv', index=False)
+
+    df_included_spaces = df_included_spaces[df_included_spaces[['xmin','ymin','zmin','xmax','ymax','zmax']].sum(axis=1) != 0]
+    df_included_spaces.reset_index(drop=True, inplace=True)
+    space_intersection_pairs = findIntersectedSpaces(
+        df_included_spaces, tol_z=0.2)
     df_pairs_space_intersection = pd.DataFrame(space_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_space_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection.csv', index=False)
 
@@ -241,19 +295,30 @@ def buildVerticalEdges():
     # filter those connected to covered spaces.
     df_pairs_space_to_wall = pd.read_csv(DIRS_DATA_RES + '\df_pairs_space_to_wall_tempo.csv')
     
-    df_pairs_space_intersection_to_wall = filterElement(df_pairs_space_intersection, df_pairs_space_to_wall, columns_second='host') # here's the issue.
+    df_pairs_space_intersection_to_wall = filterElement(df_pairs_space_intersection, df_pairs_space_to_wall, columns_second='host')
     df_pairs_space_intersection_to_wall.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection_to_wall.csv', index=False)
-    
-    # # --------------------------------------------- Wall Level.
+
+    # # --------------------------------------------- NEW Wall Level Connections.
     all_intersection_related_walls = df_pairs_space_intersection_to_wall['target'].values.tolist()
     secondary_df = secondary_dfs['wall']['feature']
-    related_secondary_df = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
-    all_intersection_related_walls_indices = related_secondary_df.index.values.tolist()
-    
-    wall_intersection_paris = findIntersectedElements(
-        secondary_df, all_intersection_related_walls_indices, tol_z=0.15)
-    df_pairs_wall_intersection = pd.DataFrame(wall_intersection_paris, columns=['host', 'target']).drop_duplicates()
+    df_related_walls = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
+
+    df_related_walls.reset_index(drop=True, inplace=True)
+    wall_intersection_pairs = findIntersectedWalls(
+        df_related_walls, tol_z=0.2, refined_box=0.1)
+    df_pairs_wall_intersection = pd.DataFrame(wall_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
+
+    # # # --------------------------------------------- Wall Level Connections.
+    # all_intersection_related_walls = df_pairs_space_intersection_to_wall['target'].values.tolist()
+    # secondary_df = secondary_dfs['wall']['feature']
+    # related_secondary_df = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
+    # all_intersection_related_walls_indices = related_secondary_df.index.values.tolist()
+    
+    # wall_intersection_paris = findIntersectedElements(
+    #     secondary_df, all_intersection_related_walls_indices, tol_z=0.15)
+    # df_pairs_wall_intersection = pd.DataFrame(wall_intersection_paris, columns=['host', 'target']).drop_duplicates()
+    # df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
 
     # # --------------------------------------------- Wall -> Openings.
     df_pairs_wall_to_opening = pd.read_csv(DIRS_DATA_RES + '\df_pairs_wall_to_opening_tempo.csv')
