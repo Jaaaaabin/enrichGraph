@@ -58,13 +58,15 @@ def featureCollect():
 
         elif feature_inst in NAME_FEATURES_INSTANCES_INPUTARE:
             
-            # load the additional feature files from Revit 
-            js_file_instance = DIRS_DATA_TOPO + NAME_INSTANCE_COLLECTION + feature_inst + '.json'
-            
+            # load the additional feature files from Revit
+            js_element_name = 'space' if 'space' in feature_inst else 'wall'
+            js_file_instance =  DIRS_DATA_TOPO + NAME_INSTANCE_COLLECTION + js_element_name + '.json'
+
             with open(js_file_instance, encoding="utf-8-sig") as json_file: # encoding = 'utf-8-sig' for special characters.
                 revit_instances = json.load(json_file)
 
             new_revit_instances = list_of_dicts_to_dict(revit_instances, 'Id')
+            
             def getInstanceArea(instance_id):
                 str_id = str(instance_id)
                 return new_revit_instances[str_id]['Area']
@@ -76,7 +78,7 @@ def featureCollect():
         
         # add classes.
         for inst in NAME_FEATURES_INSTANCES[1:]:
-            df_feature_init[inst] = 1 if inst==feature_inst else 0
+            df_feature_init[inst] = 1 if inst in feature_inst else 0
         
         df_instance = df_feature_init
         df_instance.to_csv(

@@ -19,10 +19,10 @@ if __name__ == "__main__":
     # getRoomPairs()
     
     # # run only for ----- gnn-feature-buildup.
-    featureCollect()
-    buildVerticalEdges()
+    # featureCollect()
+    # buildVerticalEdges()
 
-    # # merge edge data.
+    # merge edge data.
     mergeEdgesinCSV()
     FilterIds()
 

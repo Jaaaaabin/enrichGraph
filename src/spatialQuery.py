@@ -105,8 +105,8 @@ def securityroomQueryBasic(sr_feature_inst, secondary_feature_insts):
     df_sr_space =  pd.read_csv(
         DIRS_DATA_RES +'\df_feature_'+ sr_feature_inst +'.csv',
         header=0,)
-    df_sr_space['zmin'] = df_sr_space['zmin'].apply(lambda x:x-1000)
-    df_sr_space['zmax'] = df_sr_space['zmax'].apply(lambda x:x+1000)
+    df_sr_space['zmin'] = df_sr_space['zmin'].apply(lambda x:x-100)
+    df_sr_space['zmax'] = df_sr_space['zmax'].apply(lambda x:x+100)
     
     secondary_dfs = {}
 
@@ -318,11 +318,14 @@ def buildVerticalEdges():
 
     df_sr_space, secondary_dfs = securityroomQueryBasic(NAME_FEATURES_INSTANCES[0], NAME_FEATURES_INSTANCES[1:])
     secondary_df = secondary_dfs['space']['feature']
-    df_included_spaces = findInclusionSpace(df_sr_space, secondary_df)
 
-    # --------------------------------------------- Space Level Connections.
+    # df_included_spaces = findInclusionSpace(df_sr_space, secondary_df)
     # df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr.csv', index=False)
 
+    df_included_spaces = pd.read_csv(r'C:\dev\phd\enrichgraph\ec3_2024\enrichGraph\res\df_feature_space_sr.csv')
+    df_included_spaces.to_csv(DIRS_DATA_RES + '\df_feature_all_spaces_included_bysr_new.csv', index=False)
+
+    # --------------------------------------------- Space Level Connections.
     df_included_spaces = df_included_spaces[df_included_spaces[['xmin','ymin','zmin','xmax','ymax','zmax']].sum(axis=1) != 0]
     df_included_spaces.reset_index(drop=True, inplace=True)
     space_intersection_pairs = findIntersectedSpaces(
