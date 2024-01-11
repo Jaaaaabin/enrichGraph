@@ -4,10 +4,33 @@
 
 # import modules
 from const_project import DIRS_DATA_RES, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
+from const_project import DIRS_DATA_TOPO,NAME_INSTANCE_COLLECTION
 
 from funct_topo import *
 
 import itertools
+
+def list_of_dicts_to_dict(list_of_dicts, key_as_new_key):
+    """
+    Convert a list of dictionaries to a dictionary with specified key as new keys.
+
+    :param list_of_dicts: List of dictionaries.
+    :param key_as_new_key: The key in the original dicts to use as the new keys.
+    :return: A new dictionary with keys from key_as_new_key and remaining part of dicts as values.
+    """
+    new_dict = {}
+
+    for d in list_of_dicts:
+        if key_as_new_key in d:
+            # Extract the value for the new key
+            new_key = d[key_as_new_key]
+
+            # Create a new dict from the original, excluding the new key
+            new_value = {k: v for k, v in d.items() if k != key_as_new_key}
+
+            new_dict[new_key] = new_value
+
+    return new_dict
 
 def is_included(box1, box2, tol_inclusion=0.0):
     
@@ -172,8 +195,22 @@ def findIntersectedSpaces(all_spaces, tol_z = 0.0, count_inclusion=False):
             
     return element_intersection_pairs
 
-def findIntersectedWalls(all_walls, tol_z=0.0, refined_box=0, count_inclusion=True):
+def findIntersectedWalls(
+    all_walls,
+    orientation_dict=[],
+    tol_z=0.0,
+    refined_box=0,
+    count_inclusion=True):
 
+    def check_wall_orientation(wall_ids, orientation_dict):
+        
+        id_0, id_1 = str(wall_ids[0]), str(wall_ids[1])
+
+        if orientation_dict[id_0]['Orientation'] == orientation_dict[id_1]['Orientation']:
+            return True
+        else:
+            return False
+        
     ids =  all_walls['id'].tolist()
     ids_index = range(0, len(ids))
 
@@ -194,8 +231,10 @@ def findIntersectedWalls(all_walls, tol_z=0.0, refined_box=0, count_inclusion=Tr
         if is_intersected(
             box_a, box_b, tol_z=tol_z, refined_box=refined_box, count_inclusion=count_inclusion) and intersected_element_ids not in element_intersection_pairs:
             
-            print(" Intersection Wall Number +1.")
-            element_intersection_pairs.append(intersected_element_ids)
+            if check_wall_orientation(intersected_element_ids, orientation_dict):
+
+                print(" Intersection Wall (in the same direction) Number +1.")
+                element_intersection_pairs.append(intersected_element_ids)
             
     return element_intersection_pairs
 
@@ -298,39 +337,27 @@ def buildVerticalEdges():
     df_pairs_space_intersection_to_wall = filterElement(df_pairs_space_intersection, df_pairs_space_to_wall, columns_second='host')
     df_pairs_space_intersection_to_wall.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection_to_wall.csv', index=False)
 
-    # # --------------------------------------------- NEW Wall Level Connections.
+    # # --------------------------------------------- Wall Level Connections.
     all_intersection_related_walls = df_pairs_space_intersection_to_wall['target'].values.tolist()
     secondary_df = secondary_dfs['wall']['feature']
     df_related_walls = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
-
     df_related_walls.reset_index(drop=True, inplace=True)
+    
+    # load the additional feature files from Revit 
+    js_file_instance = DIRS_DATA_TOPO + NAME_INSTANCE_COLLECTION + 'wall' + '.json'        
+    with open(js_file_instance, encoding="utf-8-sig") as json_file: # encoding = 'utf-8-sig' for special characters.
+        revit_wall_instances = json.load(json_file)
+    revit_wall_orientation_dict = list_of_dicts_to_dict(revit_wall_instances, 'Id')
+
     wall_intersection_pairs = findIntersectedWalls(
-        df_related_walls, tol_z=0.2, refined_box=0.1)
+        df_related_walls,
+        orientation_dict=revit_wall_orientation_dict,
+        tol_z=0.2,
+        refined_box=0.1)
     df_pairs_wall_intersection = pd.DataFrame(wall_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
-
-    # # # --------------------------------------------- Wall Level Connections.
-    # all_intersection_related_walls = df_pairs_space_intersection_to_wall['target'].values.tolist()
-    # secondary_df = secondary_dfs['wall']['feature']
-    # related_secondary_df = secondary_df.loc[secondary_df['id'].isin(all_intersection_related_walls)]
-    # all_intersection_related_walls_indices = related_secondary_df.index.values.tolist()
-    
-    # wall_intersection_paris = findIntersectedElements(
-    #     secondary_df, all_intersection_related_walls_indices, tol_z=0.15)
-    # df_pairs_wall_intersection = pd.DataFrame(wall_intersection_paris, columns=['host', 'target']).drop_duplicates()
-    # df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
 
     # # --------------------------------------------- Wall -> Openings.
     df_pairs_wall_to_opening = pd.read_csv(DIRS_DATA_RES + '\df_pairs_wall_to_opening_tempo.csv')
     df_pairs_space_intersection_to_wall_to_opening = filterElement(df_pairs_space_intersection_to_wall, df_pairs_wall_to_opening, columns_primary='target', columns_second='host')
     df_pairs_space_intersection_to_wall_to_opening.to_csv(DIRS_DATA_RES + '\df_pairs_space_intersection_to_wall_to_opening.csv', index=False)
-
-    # df_intersected.to_csv(DIRS_DATA_RES +'\df_intersected_feature_all.csv', index=False)
-
-    # # merge all
-    # df_included_all.append(df_included)
-    # df_intersected_all.append(df_intersected)
-
-    # # write out all/
-    # df_included_all = pd.concat(df_included_all)
-    # df_intersected_all = pd.concat(df_intersected_all)

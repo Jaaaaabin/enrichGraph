@@ -27,6 +27,7 @@ NAME_FEATURE_COLLECTION = r'\feature_'
 
 NAME_FEATURES_INSTANCES = ['space_sr','space','wall','door','window']
 NAME_FEATURES_INSTANCES_ARE = ['door','window']
+NAME_FEATURES_INSTANCES_INPUTARE = ['space','wall']
 
 NAME_FEATURE_INSTANCES_UNIT_DY= ['xmax','ymax','zmax','xmin','ymin','zmin']
 NAME_FEATURE_INSTANCES_UNIT_CM= ['xmax','ymax','zmax','xmin','ymin','zmin','length','height','width']

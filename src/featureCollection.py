@@ -3,43 +3,82 @@
 #
 
 # import modules
-from const_project import DIRS_DATA_GNN, DIRS_DATA_RES, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE
-from const_project import NAME_FEATURE_INSTANCES_UNIT_DY, NAME_FEATURE_INSTANCES_UNIT_CM, CT_METER2FEET
+from const_project import DIRS_DATA_TOPO, NAME_INSTANCE_COLLECTION
+from const_project import DIRS_DATA_GNN, DIRS_DATA_RES, NAME_FEATURE_COLLECTION, NAME_FEATURES_INSTANCES, NAME_FEATURES_INSTANCES_ARE, NAME_FEATURES_INSTANCES_INPUTARE
+# from const_project import NAME_FEATURE_INSTANCES_UNIT_DY, NAME_FEATURE_INSTANCES_UNIT_CM, CT_METER2FEET
 from funct_topo import *
+
+def list_of_dicts_to_dict(list_of_dicts, key_as_new_key):
+    """
+    Convert a list of dictionaries to a dictionary with specified key as new keys.
+
+    :param list_of_dicts: List of dictionaries.
+    :param key_as_new_key: The key in the original dicts to use as the new keys.
+    :return: A new dictionary with keys from key_as_new_key and remaining part of dicts as values.
+    """
+    new_dict = {}
+
+    for d in list_of_dicts:
+        if key_as_new_key in d:
+            # Extract the value for the new key
+            new_key = d[key_as_new_key]
+
+            # Create a new dict from the original, excluding the new key
+            new_value = {k: v for k, v in d.items() if k != key_as_new_key}
+
+            new_dict[new_key] = new_value
+
+    return new_dict
 
 
 def featureCollect():
 
     for feature_inst in NAME_FEATURES_INSTANCES:
 
-        # set files
-        df_instance_init =  DIRS_DATA_GNN + NAME_FEATURE_COLLECTION + feature_inst + '.csv'
-        df_instance_init = pd.read_csv(df_instance_init, header=0)
-        df_instance_init = df_instance_init.fillna(0)
+        # bounding box files
+        df_feature_init =  DIRS_DATA_GNN + NAME_FEATURE_COLLECTION + feature_inst + '.csv'
+        df_feature_init = pd.read_csv(df_feature_init, header=0)
+        df_feature_init = df_feature_init.fillna(0)
 
-        for c in df_instance_init.columns.to_list():
-            
-            # feet to meter
-            if c in NAME_FEATURE_INSTANCES_UNIT_DY:
-                df_instance_init[c] = df_instance_init[c].apply(lambda x: round(x/CT_METER2FEET,2))
-            
-            # cm to m.
-            if c in NAME_FEATURE_INSTANCES_UNIT_CM:
-                df_instance_init[c] = df_instance_init[c].apply(lambda x: x*0.01)
+        # for c in df_feature_init.columns.to_list():
+            # # feet to meter
+            # if c in NAME_FEATURE_INSTANCES_UNIT_DY:
+            #     df_feature_init[c] = df_feature_init[c].apply(lambda x: round(x/CT_METER2FEET,2))
+            # # cm to m.
+            # if c in NAME_FEATURE_INSTANCES_UNIT_CM:
+            #     df_feature_init[c] = df_feature_init[c].apply(lambda x: x*0.01)
 
+        if feature_inst == 'wall':
+            df_feature_init ['width'] = 0
+        
         # area calculation.
         if feature_inst in NAME_FEATURES_INSTANCES_ARE:
 
-            df_instance_init['area'] = df_instance_init['height'] * df_instance_init['width']
+            df_feature_init['area'] = df_feature_init['height'] * df_feature_init['width']
+
+        elif feature_inst in NAME_FEATURES_INSTANCES_INPUTARE:
+            
+            # load the additional feature files from Revit 
+            js_file_instance = DIRS_DATA_TOPO + NAME_INSTANCE_COLLECTION + feature_inst + '.json'
+            
+            with open(js_file_instance, encoding="utf-8-sig") as json_file: # encoding = 'utf-8-sig' for special characters.
+                revit_instances = json.load(json_file)
+
+            new_revit_instances = list_of_dicts_to_dict(revit_instances, 'Id')
+            def getInstanceArea(instance_id):
+                str_id = str(instance_id)
+                return new_revit_instances[str_id]['Area']
+
+            df_feature_init['area'] = df_feature_init['id'].apply(getInstanceArea)
 
         else:
-            df_instance_init['area'] = 0
+            df_feature_init['area'] = 0
         
         # add classes.
         for inst in NAME_FEATURES_INSTANCES[1:]:
-            df_instance_init[inst] = 1 if inst==feature_inst else 0
+            df_feature_init[inst] = 1 if inst==feature_inst else 0
         
-        df_instance = df_instance_init
+        df_instance = df_feature_init
         df_instance.to_csv(
             DIRS_DATA_RES+'\df_feature_'+ feature_inst +'.csv',
             index=False,
