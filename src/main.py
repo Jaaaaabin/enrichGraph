@@ -11,16 +11,16 @@ from const_project import DIRS_DATA_RES
 
 if __name__ == "__main__":
     
-    # # ----- topo-extraction.
-    # topoCollect()
-    # graphCreate(plot_graph_accessibility=False)
+    # ----- topo-extraction.
+    topoCollect()
+    graphCreate(plot_graph_accessibility=False)
     
-    # # run only for ----- community-detection-buildup.
-    # getRoomPairs()
+    # run only for ----- community-detection-buildup.
+    getRoomPairs()
     
-    # # run only for ----- gnn-feature-buildup.
-    # featureCollect()
-    # buildVerticalEdges()
+    # run only for ----- gnn-feature-buildup.
+    featureCollect()
+    buildVerticalEdges()
 
     # merge edge data.
     mergeEdgesinCSV()

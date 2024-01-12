@@ -356,7 +356,7 @@ def buildVerticalEdges():
         df_related_walls,
         orientation_dict=revit_wall_orientation_dict,
         tol_z=0.2,
-        refined_box=0.1)
+        refined_box=0.0)
     df_pairs_wall_intersection = pd.DataFrame(wall_intersection_pairs, columns=['host', 'target']).drop_duplicates()
     df_pairs_wall_intersection.to_csv(DIRS_DATA_RES + '\df_pairs_wall_intersection.csv', index=False)
 
